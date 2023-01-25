@@ -1,41 +1,45 @@
-import React, { useEffect } from 'react';
-import { UPDATE_CATEGORIES, UPDATE_CURRENT_CATEGORY } from '../../utils/actions';
-import { useQuery } from '@apollo/client';
-import { QUERY_CATEGORIES } from '../../utils/queries';
-import { useStoreContext } from '../../utils/GlobalState';
-import { idbPromise } from '../../utils/helpers';
+import React, { useEffect } from "react";
+import { idbPromise } from "../../utils/helpers";
+import {
+  UPDATE_CATEGORIES,
+  UPDATE_CURRENT_CATEGORY,
+} from "../../utils/actions";
+import { useQuery } from "@apollo/client";
+import { QUERY_CATEGORIES } from "../../utils/queries";
+import { useStoreContext } from "../../utils/GlobalState";
 
 function CategoryMenu() {
   const [state, dispatch] = useStoreContext();
-  const {categories} = state;
-  const { loading, data: categoryData } = useQuery (QUERY_CATEGORIES);
-  // when component loads and the response from the useQuery() hook returns, the useEffect() hook notices that categoryData is not undefined anymore and runs the dispatch() function, setting our catgory data to the global state!
+  const { categories } = state;
+  const { loading, data: categoryData } = useQuery(QUERY_CATEGORIES);
+
   useEffect(() => {
-    // if categoryData exists or has changed from the response of useQuery, then run dispatch()
+    // if categoryData exists or has changed, then run dispatch()
     if (categoryData) {
-      // execute our dispatch function with our action object indicating the type of action and the data to set our state for categories to 
+      // save in store
       dispatch({
         type: UPDATE_CATEGORIES,
-        categories: categoryData.categories
+        categories: categoryData.categories,
       });
-      categoryData.categories.forEach(category => {
-        idbPromise('categories', 'put', category);
-      })
+      // save each category in IndexedDB
+      categoryData.categories.forEach((category) => {
+        idbPromise("categories", "put", category);
+      });
     } else if (!loading) {
-      idbPromise('categories', 'get').then(categories => {
+      idbPromise("categories", "get").then((categories) => {
         dispatch({
           type: UPDATE_CATEGORIES,
-          categories: categories
-        })
-      })
+          categories: categories,
+        });
+      });
     }
   }, [categoryData, loading, dispatch]);
 
-  // upd8 click handler to upd8 our global state
-  const handleClick = id => {
+  // click handler to upd8 our store
+  const handleClick = (id) => {
     dispatch({
       type: UPDATE_CURRENT_CATEGORY,
-      currentCategory: id
+      currentCategory: id,
     });
   };
 
