@@ -72,4 +72,4 @@ Install this application with the following steps:
 
 ## Deployment
 
-[Live](https://shop-shop-nm.onrender.com)
+[♥️ Live](https://shop-shop-nm.onrender.com)
